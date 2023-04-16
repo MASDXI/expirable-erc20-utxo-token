@@ -22,7 +22,11 @@ describe("Unspent Transaction Output contract", function() {
 
   it("Retrieve UTXO data", async function() {
     const utxo  = await token.utxo(0);
-    // console.log("🚀 ~ file: UTXO.test.js ~ line 25 ~ it ~ utxo", utxo)
+
+    expect(utxo.amount.toNumber()).to.equal(10000);
+    expect(utxo.owner).to.equal("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+    // expect(utxo.data).to.not.equal("");
+    expect(utxo.false).to.equal(false);
   });
 
   it("Spent UTXO", async function(){
