@@ -47,7 +47,7 @@ describe("Unspent Transaction Output contract", function() {
     const hashed = ethers.utils.solidityKeccak256(["uint256"],[1]);
     const sig = await accounts[0].signMessage(ethers.utils.arrayify(hashed));
     await expect(token.transfer(10000,[1,sig],[10000,accounts[1].address])).to.be.revertedWith(
-      "UTXO has been expire"
+      "UTXO has been expired"
     );
   });
   
