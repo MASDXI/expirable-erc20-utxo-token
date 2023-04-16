@@ -1,0 +1,49 @@
+const { expect, assert  } = require("chai");
+const { time } = require("@nomicfoundation/hardhat-network-helpers");
+const { ethers } = require("hardhat");
+
+describe("Unspent Transaction Output contract", function() {
+
+  let token;
+  let accounts;
+
+  before(async () => {
+    const contract = await ethers.getContractFactory("UTXOToken");
+    token = await contract.deploy();
+    accounts = await ethers.getSigners();
+    await token.deployed();
+  });
+
+  it("Mint", async function() {
+    await token.mint(10000,[10000,accounts[0].address]);
+    const totalSupply = await token.totalSupply();
+    expect(await token.balanceOf(accounts[0].address)).to.equal(totalSupply.toNumber());
+  });
+
+  it("Retrieve UTXO data", async function() {
+    const utxo  = await token.utxo(0);
+    // console.log("🚀 ~ file: UTXO.test.js ~ line 25 ~ it ~ utxo", utxo)
+  });
+
+  it("Spent UTXO", async function(){
+    const hashed = ethers.utils.solidityKeccak256(["uint256"],[0]);
+    const sig = await accounts[0].signMessage(ethers.utils.arrayify(hashed));
+    const address = ethers.utils.verifyMessage(ethers.utils.arrayify(hashed),sig);
+    await token.transfer(10000,[0,sig],[10000,accounts[1].address]);
+    expect(await token.balanceOf(address)).to.equal(0);
+  });
+
+  it("Spend expire utxo", async function() {
+    await token.mint(10000,[10000,accounts[0].address]);
+    const utxo  = await token.utxo(1);
+    const abiCoder = new ethers.utils.AbiCoder();
+    const data = abiCoder.decode(["uint256"],utxo.data)
+    await time.increaseTo(data);
+    const hashed = ethers.utils.solidityKeccak256(["uint256"],[1]);
+    const sig = await accounts[0].signMessage(ethers.utils.arrayify(hashed));
+    await expect(token.transfer(10000,[1,sig],[10000,accounts[1].address])).to.be.revertedWith(
+      "UTXO has been expire"
+    );
+  });
+  
+});
