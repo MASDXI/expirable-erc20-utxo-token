@@ -26,7 +26,7 @@ describe("Unspent Transaction Output contract", function() {
     expect(utxo.amount.toNumber()).to.equal(10000);
     expect(utxo.owner).to.equal("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
     // expect(utxo.data).to.not.equal("");
-    expect(utxo.false).to.equal(false);
+    expect(utxo.spent).to.equal(false);
   });
 
   it("Spent UTXO", async function(){
@@ -35,6 +35,7 @@ describe("Unspent Transaction Output contract", function() {
     const address = ethers.utils.verifyMessage(ethers.utils.arrayify(hashed),sig);
     await token.transfer(10000,[0,sig],[10000,accounts[1].address]);
     expect(await token.balanceOf(address)).to.equal(0);
+    expect(await token.balanceOf(accounts[1].address)).to.equal(10000);
   });
 
   it("Spend expire utxo", async function() {
