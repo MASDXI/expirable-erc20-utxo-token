@@ -34,7 +34,9 @@ interface IERC20UTXO {
 
     function utxoLength() external view returns (uint256);
 
-    function transfer(uint256 amount, TxInput memory input, TxOutput memory output) external;
+    function transfer(uint256 amount, TxInput memory input, TxOutput memory output) external returns (bool);
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
 
     event UTXOCreated(uint256 indexed id, address indexed creator);
 

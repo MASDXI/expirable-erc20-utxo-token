@@ -51,26 +51,32 @@ contract ERC20UTXO is Context, IERC20UTXO {
         return _utxos[id];
     }
 
-    function transfer(uint256 amount, TxInput memory input, TxOutput memory output) public virtual {
-        require(output.amount <= amount, "ERC20UTXO: transfer amount exceeds utxo amount");
+    function transfer(uint256 amount, TxInput memory input, TxOutput memory output) public returns (bool) {
         address creator = _msgSender();
-        bytes storage data = _utxos[input.id].data;
-        if (output.amount < amount) {
-            uint256 value = amount - output.amount;
+        _transfer(amount, input, output, creator);
+        return true;
+        emit Transfer(creator, output.owner, amount);
+    }
+
+    function _transfer(uint256 amount, TxInput memory input, TxOutput memory output, address creator) internal virtual {
+        UTXO storage cache = _utxos[input.id];
+        require(output.amount <= cache.amount, "ERC20UTXO: transfer amount exceeds utxo amount");
+        if (output.amount < cache.amount) {
+            uint256 value = cache.amount - output.amount;
             _spend(input, creator);
             unchecked {
                 _balances[creator] -= value;   
                 _balances[output.owner] += amount;
             }
-            _create(output, creator, data);
-            _create(TxOutput(value, creator), creator, data);
+            _create(output, creator, cache.data);
+            _create(TxOutput(value, creator), creator, cache.data);
         } else {
             _spend(input,creator);
             unchecked {
                 _balances[creator] -= amount;   
                 _balances[output.owner] += amount;
             }
-            _create(output, creator, data);
+            _create(output, creator, cache.data);
         }
     }
 
