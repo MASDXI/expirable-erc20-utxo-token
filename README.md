@@ -1,4 +1,4 @@
-# Expirable Token
+# Expirable ERC20 with UTXO
 This is a Solidity smart contract that implements an ERC20 token with the UTXO (Unspent Transaction Output) model and an expiration mechanism. The contract is designed to allow the minting of tokens with an expiration date, after which they become unusable.
 
 > [!Important]
